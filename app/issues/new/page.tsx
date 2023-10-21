@@ -10,11 +10,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createIssueSchema } from "@/app/validationSchemas";
 import { z } from "zod";
 import ErrorMessage from "@/app/components/ErrorMessage";
+import Spinner from "@/app/components/Spinner";
 
 type IssueInterface = z.infer<typeof createIssueSchema>;
 
 const NewIssue = () => {
   const [error, setError] = useState<string>();
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const router = useRouter();
   const {
     register,
@@ -36,9 +38,11 @@ const NewIssue = () => {
         className="max-w-xl space-y-3"
         onSubmit={handleSubmit(async (data) => {
           try {
+            setIsSubmitting(true);
             const response = await axios.post("/api/issues", { ...data });
             router.push("/issues");
           } catch (error) {
+            setIsSubmitting(false);
             setError("Please fill all the fields.");
           }
         })}
@@ -57,7 +61,9 @@ const NewIssue = () => {
         {errors.description && (
           <ErrorMessage>{errors.description.message}</ErrorMessage>
         )}
-        <Button>Create Issue</Button>
+        <Button disabled={isSubmitting}>
+          Create Issue {isSubmitting && <Spinner />}
+        </Button>
       </form>
     </div>
   );
