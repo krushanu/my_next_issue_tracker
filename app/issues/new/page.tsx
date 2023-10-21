@@ -27,6 +27,17 @@ const NewIssue = () => {
     resolver: zodResolver(createIssueSchema),
   });
 
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      setIsSubmitting(true);
+      const response = await axios.post("/api/issues", { ...data });
+      router.push("/issues");
+    } catch (error) {
+      setIsSubmitting(false);
+      setError("Please fill all the fields.");
+    }
+  });
+
   return (
     <div className="max-w-xl">
       {error && (
@@ -34,19 +45,7 @@ const NewIssue = () => {
           <Callout.Text>{error}</Callout.Text>
         </Callout.Root>
       )}
-      <form
-        className="max-w-xl space-y-3"
-        onSubmit={handleSubmit(async (data) => {
-          try {
-            setIsSubmitting(true);
-            const response = await axios.post("/api/issues", { ...data });
-            router.push("/issues");
-          } catch (error) {
-            setIsSubmitting(false);
-            setError("Please fill all the fields.");
-          }
-        })}
-      >
+      <form className="max-w-xl space-y-3" onSubmit={onSubmit}>
         <TextField.Root>
           <TextField.Input placeholder="Title" {...register("title")} />
         </TextField.Root>
